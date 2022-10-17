@@ -4,6 +4,7 @@ version = "0.2.0"
 description = "FastAPI for GraiaCommunity."
 authors = [
     {name = "BlueGlassBlock", email = "blueglassblock@outlook.com"},
+    {name = "Red_lnn", email = "w731347477@gmail.com"},
 ]
 dependencies = [
     "graia-amnesia>=0.6.0",
