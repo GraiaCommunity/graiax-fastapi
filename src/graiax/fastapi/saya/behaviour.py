@@ -43,4 +43,4 @@ class FastAPIBehaviour(Behaviour):
                 and route.endpoint == cube.content
             ):
                 self.fastapi.routes.remove(route)
-            return True
+        return True

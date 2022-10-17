@@ -22,6 +22,10 @@ build-backend = "pdm.pep517.api"
 
 [tool]
 [tool.pdm]
+includes = ["src/graiax"]
+
+[tool.pdm.scripts]
+test = {composite = ["coverage run -m pytest -vv", "coverage xml", "coverage report"]}
 [tool.pdm.dev-dependencies]
 dev = [
     "black>=22.10.0",
@@ -31,4 +35,42 @@ dev = [
     "coverage>=6.5.0",
     "pytest>=7.1.3",
     "pytest-asyncio>=0.19.0",
+    "httpx>=0.23.0",
 ]
+
+[tool.isort]
+profile = "black"
+
+[tool.pytest.ini_options]
+asyncio_mode = "strict"
+testpaths = ["./tests"]
+python_files = ["test.py"]
+
+[tool.coverage.run]
+branch = true
+source = ["."]
+omit = ["tests/*", "test.py"]
+
+[tool.coverage.report]
+# Regexes for lines to exclude from consideration
+exclude_lines = [
+    # standard pragma
+    "pragma: no cover",
+    # Don't complain if non-runnable code isn't run:
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "if (typing\\.)?TYPE_CHECKING( is True)?:",
+    "^ *\\.\\.\\.$",
+    "pass",
+    # Don't complain about abstract methods, they aren't run:
+    "@(abc\\.)?abstractmethod",
+    # Don't complain overload method / functions
+    "@(typing\\.)?overload",
+    # don't complain __repr__ and __str__ and __repr_args__ for representation
+    "def __repr__\\(self\\).+",
+    "except ImportError:", # Don't complain about import fallback
+]
+partial_branches = [
+    "pragma: worst case"
+]
+precision = 2

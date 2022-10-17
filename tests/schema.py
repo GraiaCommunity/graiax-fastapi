@@ -1,4 +1,6 @@
+from graia.broadcast.builtin.event import ExceptionThrown
 from graia.saya import Channel
+from graia.saya.builtins.broadcast import ListenerSchema
 from pydantic import BaseModel
 
 from graiax.fastapi import RouteSchema, route
@@ -11,32 +13,35 @@ class ResponseModel(BaseModel):
     message: str
 
 
-# 方式一：像原版 FastAPI 那样直接使用装饰器
+@channel.use(ListenerSchema([ExceptionThrown]))
+async def handle_exc(exc: Exception):
+    ...
+
+
 @route.get("/", response_model=ResponseModel)
+@route.get(
+    "/", response_model=ResponseModel
+)  # duplication will be automatically removed
 async def root():
     return {"code": 200, "message": "Hello World!"}
 
 
-# 方式二：当你先需要同一个路径有多种请求方式时你可以这样做
 @route.route(["GET"], "/xxxxx")
 async def xxxxx():
     return "xxxx"
 
 
-# 方式三：上面那种方式实际上也可以这么写
 @channel.use(RouteSchema("/xxx", methods=["GET", "POST"]))
 async def xxx():
     return "xxx"
 
 
-# Websocket
 from fastapi import WebSocket
 from starlette.websockets import WebSocketDisconnect
 from websockets.exceptions import ConnectionClosedOK
 
 
 @route.ws("/ws")
-# 等价于 @channel.use(WebsocketRouteSchema("/ws"))
 async def ws(websocket: WebSocket):
     await websocket.accept()
     while True:
