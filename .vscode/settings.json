@@ -1,0 +1,10 @@
+{
+    "cSpell.words": [
+        "ASGI",
+        "builtins",
+        "fastapi",
+        "Starlette",
+        "Uvicorn",
+        "websockets"
+    ]
+}
