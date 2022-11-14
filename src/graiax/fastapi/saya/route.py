@@ -19,7 +19,6 @@ from fastapi.encoders import DictIntStrAny, SetIntStr
 from fastapi.params import Depends
 from fastapi.routing import APIRoute
 from fastapi.utils import generate_unique_id
-from graia.saya import Channel, Cube
 from graia.saya.channel import Channel
 from graia.saya.cube import Cube
 from starlette.responses import JSONResponse, Response
