@@ -11,5 +11,12 @@
         "tests"
     ],
     "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true
+    "python.testing.pytestEnabled": true,
+    "python.analysis.importFormat": "relative",
+    "flake8.args": [
+        "--ignore=E203,W291,W503,F401"
+    ],
+    "isort.check": true,
+    "isort.importStrategy": "fromEnvironment",
+    "black-formatter.importStrategy": "fromEnvironment"
 }
