@@ -1,6 +1,4 @@
-from graia.broadcast.builtin.event import ExceptionThrown
 from graia.saya import Channel
-from graia.saya.builtins.broadcast import ListenerSchema
 from pydantic import BaseModel
 
 from graiax.fastapi import RouteSchema, route
@@ -13,9 +11,14 @@ class ResponseModel(BaseModel):
     message: str
 
 
-@channel.use(ListenerSchema([ExceptionThrown]))
-async def handle_exc(exc: Exception):
-    ...
+# 如果有 graia.broadcast 可以捕获运行中出现的部分错误并对其进行处理
+
+# from graia.saya.builtins.broadcast import ListenerSchema  # noqa: E402
+# from graia.broadcast.builtin.event import ExceptionThrown  # noqa: E402
+
+# @channel.use(ListenerSchema([ExceptionThrown]))
+# async def handle_exc(exc: Exception):
+#     ...
 
 
 @route.get("/", response_model=ResponseModel)
@@ -36,9 +39,9 @@ async def xxx():
     return "xxx"
 
 
-from fastapi import WebSocket
-from starlette.websockets import WebSocketDisconnect
-from websockets.exceptions import ConnectionClosedOK
+from fastapi import WebSocket  # noqa: E402
+from starlette.websockets import WebSocketDisconnect  # noqa: E402
+from websockets.exceptions import ConnectionClosedOK  # noqa: E402
 
 
 @route.ws("/ws")
