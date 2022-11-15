@@ -1,6 +1,6 @@
 [project]
 name = "graiax-fastapi"
-version = "0.2.0"
+version = "0.2.1"
 description = "FastAPI for GraiaCommunity."
 authors = [
     {name = "BlueGlassBlock", email = "blueglassblock@outlook.com"},
