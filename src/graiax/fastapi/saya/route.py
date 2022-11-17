@@ -19,8 +19,7 @@ from fastapi.encoders import DictIntStrAny, SetIntStr
 from fastapi.params import Depends
 from fastapi.routing import APIRoute
 from fastapi.utils import generate_unique_id
-from graia.saya.channel import Channel
-from graia.saya.cube import Cube
+from graia.saya.factory import factory
 from starlette.responses import JSONResponse, Response
 from starlette.routing import BaseRoute
 from typing_extensions import Concatenate, ParamSpec
@@ -31,24 +30,6 @@ T_Callable = TypeVar("T_Callable", bound=Callable)
 Wrapper = Callable[[T_Callable], T_Callable]
 P = ParamSpec("P")
 R = TypeVar("R")
-
-
-def __cube_ensurer(path: str, route: RouteSchema | WebsocketRouteSchema) -> Wrapper:
-    def wrapper(func: T_Callable) -> T_Callable:
-        channel = Channel.current()
-        for cube in channel.content:
-            if (
-                cube.content is func
-                and isinstance(cube.metaclass, RouteSchema)
-                and cube.metaclass.path == path
-            ):
-                break
-        else:
-            cube = Cube(func, route)
-            channel.content.append(cube)
-        return func
-
-    return wrapper
 
 
 if TYPE_CHECKING:
@@ -84,8 +65,9 @@ if TYPE_CHECKING:
 
 else:
 
+    @factory
     def route(methods: List[Method], path: str, **params: Any):
-        return __cube_ensurer(path, RouteSchema(path, methods, **params))
+        return lambda *_: RouteSchema(path, methods, **params)
 
 
 def __wrap_route(
@@ -98,8 +80,9 @@ def __wrap_route(
     return wrapper
 
 
-def websocket(path: str, name: str | None = None) -> Wrapper:
-    return __cube_ensurer(path, WebsocketRouteSchema(path, name))
+@factory
+def websocket(path: str, name: str | None = None):
+    return lambda *_: WebsocketRouteSchema(path, name)
 
 
 ws = websocket

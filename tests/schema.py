@@ -19,9 +19,6 @@ async def handle_exc(exc: Exception):
 
 
 @route.get("/", response_model=ResponseModel)
-@route.get(
-    "/", response_model=ResponseModel
-)  # duplication will be automatically removed
 async def root():
     return {"code": 200, "message": "Hello World!"}
 
