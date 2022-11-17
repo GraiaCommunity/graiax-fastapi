@@ -1,7 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from graia.amnesia.builtins.uvicorn import UvicornService
+from graia.broadcast import Broadcast
 from graia.saya import Saya
+from graia.saya.builtins.broadcast import BroadcastBehaviour
 from httpx import AsyncClient
 from launart import Launart, Launchable
 
@@ -74,8 +76,10 @@ def test_main():
                     assert response.status_code == 404
 
     launart = Launart()
-    saya = Saya()
+    bcc = Broadcast()
+    saya = Saya(bcc)
     saya.install_behaviours(FastAPIBehaviour(fastapi))
+    saya.install_behaviours(BroadcastBehaviour(bcc))
     launart.add_service(FastAPIService(fastapi))
     launart.add_service(UvicornService())
     launart.add_launchable(MainLaunchable())
