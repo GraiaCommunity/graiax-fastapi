@@ -121,6 +121,13 @@ async def ws(websocket: WebSocket):
 ...
 fastapi = FastAPI()
 
+fastapi.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @fastapi.get("/main")
 async def main():
@@ -145,13 +152,6 @@ async def root():
 async def function(app: Ariadne):
     mgr = app.launch_manager
     fastapi: FastAPI = mgr.get_interface(ASGIHandlerProvider).get_asgi_handler()  # type: ignore
-    fastapi.add_middleware(
-        CORSMiddleware,
-        allow_origins=['*'],
-        allow_credentials=True,
-        allow_methods=['*'],
-        allow_headers=['*'],
-    )
     fastapi.add_api_route('/', endpoint=root, methods=['GET'])
     fastapi.get('/main')(root)
     fastapi.add_api_websocket_route('/ws', endpoint=websocket)
