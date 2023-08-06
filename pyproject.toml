@@ -1,7 +1,7 @@
 [project]
 name = "graiax-fastapi"
 version = "0.3.0"
-description = "FastAPI for GraiaCommunity."
+description = "FastAPI launcher for GraiaCommunity."
 authors = [
     { name = "BlueGlassBlock", email = "blueglassblock@outlook.com" },
     { name = "Red_lnn", email = "w731347477@gmail.com" },
@@ -38,7 +38,7 @@ test = { composite = [
 dev = [
     "black>=23.7.0",
     "isort>=5.12.0",
-    "launart>=0.6.4",
+    "launart>=0.6.4,<0.7.0",
     "uvicorn[standard]>=0.23.2",
     "coverage>=7.2.7",
     "pytest>=7.4.0",
