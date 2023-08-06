@@ -20,8 +20,8 @@ license = { text = "MIT" }
 repository = "https://github.com/GraiaCommunity/graiax-fastapi"
 
 [build-system]
-requires = ["pdm-pep517>=1.0.0"]
-build-backend = "pdm.pep517.api"
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
 
 [tool]
 [tool.pdm]
