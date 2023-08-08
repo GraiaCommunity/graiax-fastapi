@@ -13,9 +13,10 @@
 
 </div>
 
-你可以方便地使用 GraiaX FastAPI 配合 `graia.amnesia.builtins.uvicorn.UvicornService`
+你可以方便地使用 GraiaX FastAPI 配合 `graia.amnesia.builtins.asgi.UvicornASGIService`
 轻松地在启动使用了 Graia Amnesia 的项目（如：Ariadne、Avilla）的同时启动一个
-Uvicorn 服务器并把 FastAPI 作为其 `ASGIApplication`，并在其退出的时候自动关闭 Uvicorn。
+Uvicorn 服务器并在其中为 FastAPI 指定一个 entrypoint（入口点），且在 Launart
+退出的时候自动关闭 Uvicorn。
 
 ## 安装
 
@@ -25,7 +26,7 @@ Uvicorn 服务器并把 FastAPI 作为其 `ASGIApplication`，并在其退出的
 
 ## 开始使用
 
-以 Ariadne 为例。
+以 Avilla 为例。
 
 ### 配合 Launart 使用
 
@@ -34,29 +35,55 @@ Uvicorn 服务器并把 FastAPI 作为其 `ASGIApplication`，并在其退出的
 如果你有使用 **Graia Saya** 作为模块管理工具，那么你可以使用 **FastAPIBehaviour**
 以在 Saya 模块中更方便地使用 FastAPI。
 
-FastAPI 本身并 **不自带** ASGI 服务器，因此你需要额外添加一个 **UvicornService**。
+FastAPI 本身并 **不自带** ASGI 服务器，因此你需要额外添加一个 **UvicornASGIService**。
 
 ```python
-from creart import create
-from graia.ariadne.app import Ariadne
-from graia.amnesia.builtins.uvicorn import UvicornService
-from graiax.fastapi import FastAPIBehaviour, FastAPIService
-from graia.saya import Saya
+import pkgutil
 
-app = Ariadne(...)
+from avilla.console.protocol import ConsoleProtocol
+from avilla.core import Avilla
+from creart import create
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from graia.amnesia.builtins.asgi import UvicornASGIService
+from graia.broadcast import Broadcast
+from graia.saya import Saya
+from launart import Launart
+
+broadcast = create(Broadcast)
 saya = create(Saya)
+launart = Launart()
+avilla = Avilla(broadcast=broadcast, launch_manager=launart, message_cache_size=0)
 fastapi = FastAPI()
 
+avilla.apply_protocols(ConsoleProtocol())
 saya.install_behaviours(FastAPIBehaviour(fastapi))
+fastapi.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+launart.add_component(FastAPIService(fastapi))
+launart.add_component(UvicornASGIService("127.0.0.1", 9000, {"": fastapi}))  # type:ignore
 
-# 可以不创建 FastAPI 实例, 交给 FastAPIService 自己创建
-# app.launch_manager.add_service(FastAPIService())
-# 这样的话就不能给 FastAPI 传参并自定义 FastAPI
-app.launch_manager.add_service(FastAPIService(fastapi))
-app.launch_manager.add_service(UvicornService())
+with saya.module_context():
+    for module in pkgutil.iter_modules(["modules"]):
+        if module.name[0] in ("#", ".", "_"):
+            continue
+        saya.require(f"modules.{module.name}")
 
-Ariadne.launch_blocking()
+launart.launch_blocking()
 ```
+
+> [!NOTE]
+> 需要留意的是，在把我们的 FastAPI 实例添加到 `UvicornASGIService` 中间件时，我们通过 `{"": fastapi}` 指定了一个**入口点**（enttrypoint）`""`，
+> 这代表着我们此时传进去的 FastAPI 实例将占据 `http://127.0.0.1:9000/` 下所有入口，例如我们可以通过 `http://127.0.0.1:9000/docs` 访问我们的
+> FastAPI 实例的 OpenAPI 文档。
+>
+> 假如我们使用 `{"/api": fastapi}` 指定 `/api` 为入口点，那么我们就需要通过 `http://127.0.0.1:9000/api/docs` 而不是
+> `http://127.0.0.1:9000/docs` 来访问我们的 FastAPI 实例的 OpenAPI 文档。
 
 #### Saya 模块中
 
@@ -120,7 +147,7 @@ async def ws(websocket: WebSocket):
 ```python
 ...
 fastapi = FastAPI()
-
+...
 fastapi.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -133,28 +160,27 @@ fastapi.add_middleware(
 async def main():
     return "main"
 
-
-app.launch_manager.add_service(FastAPIService(fastapi))
+...
+launart.add_component(FastAPIService(fastapi))
+launart.add_component(UvicornASGIService("127.0.0.1", 9000, {"": fastapi}))  # type:ignore
 ...
 ```
 
-##### 在 Ariadne 启动成功后添加
+##### 在 Avilla 启动成功后添加
 
 ```python
-from graia.amnesia.builtins.uvicorn import ASGIHandlerProvider
+from fastapi.responses import PlainTextResponse
+from graiax.fastapi.interface import FastAPIProvider
 
-
-async def root():
-    ...
+async def interface_test():
+    return PlainTextResponse("I'm from interface!")
 
 
 @listen(ApplicationLaunched)
-async def function(app: Ariadne):
-    mgr = app.launch_manager
-    fastapi: FastAPI = mgr.get_interface(ASGIHandlerProvider).get_asgi_handler()  # type: ignore
-    fastapi.add_api_route('/', endpoint=root, methods=['GET'])
-    fastapi.get('/main')(root)
-    fastapi.add_api_websocket_route('/ws', endpoint=websocket)
+async def function():
+    launart = Launart.current()
+    fastapi = launart.get_interface(FastAPIProvider)
+    fastapi.add_api_route("/interface", fastapi.get("/interface")(interface_test))
 ```
 
 </details>
