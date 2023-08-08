@@ -18,7 +18,8 @@ class FastAPIBehaviour(Behaviour):
     def allocate(self, cube: Cube) -> Union[None, Literal[True]]:
         if isinstance(cube.metaclass, RouteSchema):
             self.fastapi.router.add_api_route(
-                endpoint=cube.content, **asdict(cube.metaclass)
+                endpoint=cube.content,
+                **asdict(cube.metaclass),
             )
             return True
         elif isinstance(cube.metaclass, WebsocketRouteSchema):
@@ -26,6 +27,7 @@ class FastAPIBehaviour(Behaviour):
                 endpoint=cube.content,
                 path=cube.metaclass.path,
                 name=cube.metaclass.name,
+                dependencies=cube.metaclass.dependencies,
             )
             return True
 

@@ -2,26 +2,15 @@ from __future__ import annotations
 
 import functools
 from enum import Enum
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Dict,
-    List,
-    Optional,
-    Sequence,
-    Type,
-    TypeVar,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Callable, Sequence, TypeVar
 
-from fastapi.encoders import DictIntStrAny, SetIntStr
+from fastapi import routing
+from fastapi.datastructures import Default
 from fastapi.params import Depends
-from fastapi.routing import APIRoute
+from fastapi.types import IncEx
 from fastapi.utils import generate_unique_id
 from graia.saya.factory import factory
 from starlette.responses import JSONResponse, Response
-from starlette.routing import BaseRoute
 from typing_extensions import Concatenate, ParamSpec
 
 from .schema import Method, RouteSchema, WebsocketRouteSchema
@@ -35,44 +24,40 @@ R = TypeVar("R")
 if TYPE_CHECKING:
 
     def route(
-        methods: List[Method],
+        methods: list[Method],
         path: str,
-        response_model: Any = None,
-        status_code: Optional[int] = None,
-        tags: Optional[List[Union[str, Enum]]] = None,
-        dependencies: Optional[Sequence[Depends]] = None,
-        summary: Optional[str] = None,
-        description: Optional[str] = None,
+        response_model: Any = Default(None),
+        status_code: int | None = None,
+        tags: list[str | Enum] | None = None,
+        dependencies: Sequence[Depends] | None = None,
+        summary: str | None = None,
+        description: str | None = None,
         response_description: str = "Successful Response",
-        responses: Optional[Dict[Union[int, str], Dict[str, Any]]] = None,
-        deprecated: Optional[bool] = None,
-        operation_id: Optional[str] = None,
-        response_model_include: Optional[Union[SetIntStr, DictIntStrAny]] = None,
-        response_model_exclude: Optional[Union[SetIntStr, DictIntStrAny]] = None,
+        responses: dict[int | str, dict[str, Any]] | None = None,
+        deprecated: bool | None = None,
+        operation_id: str | None = None,
+        response_model_include: IncEx | None = None,
+        response_model_exclude: IncEx | None = None,
         response_model_by_alias: bool = True,
         response_model_exclude_unset: bool = False,
         response_model_exclude_defaults: bool = False,
         response_model_exclude_none: bool = False,
         include_in_schema: bool = True,
-        response_class: Type[Response] = JSONResponse,
-        name: Optional[str] = None,
-        route_class_override: Optional[Type[APIRoute]] = None,
-        callbacks: Optional[List[BaseRoute]] = None,
-        openapi_extra: Optional[Dict[str, Any]] = None,
-        generate_unique_id_function: Callable[[APIRoute], str] = generate_unique_id,
+        response_class: type[Response] = Default(JSONResponse),
+        name: str | None = None,
+        openapi_extra: dict[str, Any] | None = None,
+        generate_unique_id_function: Callable[[routing.APIRoute], str] = Default(generate_unique_id),
     ) -> Wrapper:
         ...
 
 else:
 
     @factory
-    def route(methods: List[Method], path: str, **params: Any):
+    def route(methods: list[Method], path: str, **params: Any):
         return lambda *_: RouteSchema(path, methods, **params)
 
 
-def __wrap_route(
-    method: Method, func: Callable[Concatenate[List[Method], P], R] = route
-) -> Callable[P, R]:
+def __wrap_route(method: Method, func: Callable[Concatenate[list[Method], P], R] = route) -> Callable[P, R]:
     @functools.wraps(func)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
         return func([method], *args, **kwargs)
@@ -81,8 +66,8 @@ def __wrap_route(
 
 
 @factory
-def websocket(path: str, name: str | None = None):
-    return lambda *_: WebsocketRouteSchema(path, name)
+def websocket(path: str, name: str | None = None, *, dependencies: Sequence[Depends] | None = None):
+    return lambda *_: WebsocketRouteSchema(path, name, dependencies)
 
 
 ws = websocket
