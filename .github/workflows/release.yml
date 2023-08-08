@@ -1,12 +1,20 @@
-name: Python package
+name: Release
 on:
   push:
     tags:
       - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      release:
+        description: Make Release
+        required: true
+        type: boolean
 jobs:
+  test:
+    uses: ./.github/workflows/test.yml  # use the callable tests job to run tests
   publish:
     runs-on: ubuntu-latest
-    needs: test
+    needs: test # require tests to pass before deploy runs
     steps:
       - uses: actions/checkout@v3
 
@@ -17,6 +25,7 @@ jobs:
         run: pdm build
 
       - name: Publish to PyPI
+        if: ${{ github.event.inputs.release == 'true' }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_TOKEN }}
