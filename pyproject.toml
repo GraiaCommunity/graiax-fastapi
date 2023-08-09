@@ -15,6 +15,14 @@ dependencies = [
 requires-python = ">=3.9"
 readme = "README.md"
 license = { text = "MIT" }
+classifiers = [
+    "Typing :: Typed",
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
 
 [project.urls]
 repository = "https://github.com/GraiaCommunity/graiax-fastapi"
