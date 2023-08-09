@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from fastapi import FastAPI
 from launart import Launart, Service
-from launart.utilles import any_completed
 
 from .interface import FastAPIProvider
 
@@ -22,4 +21,4 @@ class FastAPIService(Service):
 
     async def launch(self, manager: Launart):
         async with self.stage("blocking"):
-            await any_completed(manager.status.wait_for_sigexit())
+            await manager.status.wait_for_sigexit()
