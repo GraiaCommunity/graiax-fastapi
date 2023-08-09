@@ -58,7 +58,7 @@ from launart import Launart
 
 broadcast = create(Broadcast)
 saya = create(Saya)
-launart = Launart()
+launart = create(Launart)
 avilla = Avilla(broadcast=broadcast, launch_manager=launart, message_cache_size=0)
 fastapi = FastAPI()
 

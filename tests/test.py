@@ -1,3 +1,4 @@
+from creart import create
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from graia.amnesia.builtins.asgi import UvicornASGIService
@@ -64,9 +65,9 @@ def test_main():
 
                 # launart.status.exiting = True
 
-    launart = Launart()
-    bcc = Broadcast()
-    saya = Saya(bcc)
+    launart = create(Launart)
+    bcc = create(Broadcast)
+    saya = create(Saya)
     saya.install_behaviours(FastAPIBehaviour(fastapi))
     saya.install_behaviours(BroadcastBehaviour(bcc))
     launart.add_component(FastAPIService(fastapi))
