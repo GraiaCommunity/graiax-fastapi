@@ -73,6 +73,7 @@ fastapi.add_middleware(
 )
 launart.add_component(FastAPIService(fastapi))
 launart.add_component(UvicornASGIService("127.0.0.1", 9000, {"": fastapi}))  # type:ignore
+# 上面这条命令会占据 Uvicorn 的所有入口点，详见下方的 Warning
 
 with saya.module_context():
     for module in pkgutil.iter_modules(["modules"]):
@@ -83,10 +84,12 @@ with saya.module_context():
 launart.launch_blocking()
 ```
 
-> [!NOTE]
-> 需要留意的是，在把我们的 FastAPI 实例添加到 `UvicornASGIService` 中间件时，我们通过 `{"": fastapi}` 指定了一个**入口点**（enttrypoint）`""`，
-> 这代表着我们此时传进去的 FastAPI 实例将占据 `http://127.0.0.1:9000/` 下所有入口，例如我们可以通过 `http://127.0.0.1:9000/docs` 访问我们的
-> FastAPI 实例的 OpenAPI 文档。
+> [!WARNING]  
+> 需要留意的是，在把我们的 FastAPI 实例添加到 `UvicornASGIService` 中间件时，我们通过
+> `{"": fastapi}` 指定了一个**入口点**（enttrypoint）`""`，> 这代表着我们此时传进去的
+> FastAPI 实例将占据 `http://127.0.0.1:9000/` 下所有入口（例如我们可以通过 `http://127.0.0.1:9000/docs`
+> 访问我们的 FastAPI 实例的 OpenAPI 文档），这样用起来很方便，但可能会影响其他也使用 `UvicornASGIService`
+> 中间件的功能（例如 Avilla 的 ob11 协议）。
 >
 > 假如我们使用 `{"/api": fastapi}` 指定 `/api` 为入口点，那么我们就需要通过 `http://127.0.0.1:9000/api/docs` 而不是
 > `http://127.0.0.1:9000/docs` 来访问我们的 FastAPI 实例的 OpenAPI 文档。
@@ -176,13 +179,14 @@ launart.add_component(UvicornASGIService("127.0.0.1", 9000, {"": fastapi}))  # t
 
 ```python
 from fastapi.responses import PlainTextResponse
+from avilla.standard.core.application.event import ApplicationReady
 from graiax.fastapi.interface import FastAPIProvider
 
 async def interface_test():
     return PlainTextResponse("I'm from interface!")
 
 
-@listen(ApplicationLaunched)
+@listen(ApplicationReady)
 async def function():
     launart = Launart.current()
     fastapi = launart.get_interface(FastAPIProvider)
