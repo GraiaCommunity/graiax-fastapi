@@ -1,3 +1,5 @@
+import contextlib
+
 from fastapi.responses import PlainTextResponse
 from graia.broadcast.builtin.event import ExceptionThrown
 from graia.saya import Channel
@@ -55,16 +57,16 @@ async def schema_test():
     return "@channel.use(RouteSchema('/schema_test', methods=['GET', 'POST']))"
 
 
-from fastapi import WebSocket  # noqa: E402
-from starlette.websockets import WebSocketDisconnect  # noqa: E402
-from websockets.exceptions import ConnectionClosedOK  # noqa: E402
+with contextlib.suppress(ModuleNotFoundError):
+    from fastapi import WebSocket
+    from starlette.websockets import WebSocketDisconnect
+    from websockets.exceptions import ConnectionClosedOK
 
-
-@route.ws("/ws")
-async def ws(websocket: WebSocket):
-    await websocket.accept()
-    while True:
-        try:
-            print(await websocket.receive_text())
-        except (WebSocketDisconnect, ConnectionClosedOK, RuntimeError):
-            break
+    @route.ws("/ws")
+    async def ws(websocket: WebSocket):
+        await websocket.accept()
+        while True:
+            try:
+                print(await websocket.receive_text())
+            except (WebSocketDisconnect, ConnectionClosedOK, RuntimeError):
+                break
