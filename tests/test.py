@@ -5,11 +5,10 @@ from graia.amnesia.builtins.asgi import UvicornASGIService
 from graia.broadcast import Broadcast
 from graia.saya import Saya
 from graia.saya.builtins.broadcast import BroadcastBehaviour
-from httpx import AsyncClient
-from launart import Launart, Service
-
 from graiax.fastapi import FastAPIBehaviour, FastAPIService
 from graiax.fastapi.saya.schema import RouteSchema
+from httpx import AsyncClient
+from launart import Launart, Service
 
 fastapi = FastAPI()
 
@@ -33,7 +32,7 @@ def test_main():
 
         @property
         def required(self):
-            return set()
+            return {"http.server/graiax.fastapi", "asgi.service/uvicorn"}
 
         @property
         def stages(self):
