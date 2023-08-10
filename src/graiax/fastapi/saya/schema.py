@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Literal, Sequence, TypeVar
+from typing import Any, Callable, Literal, Sequence
 
 from fastapi import routing
 from fastapi.params import Depends
