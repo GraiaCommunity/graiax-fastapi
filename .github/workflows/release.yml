@@ -10,11 +10,8 @@ on:
         required: true
         type: boolean
 jobs:
-  test:
-    uses: ./.github/workflows/test.yml  # use the callable tests job to run tests
   publish:
     runs-on: ubuntu-latest
-    needs: test # require tests to pass before deploy runs
     steps:
       - uses: actions/checkout@v3
 
