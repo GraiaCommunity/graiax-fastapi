@@ -86,7 +86,7 @@ launart.launch_blocking()
 
 > [!WARNING]  
 > 需要留意的是，在把我们的 FastAPI 实例添加到 `UvicornASGIService` 中间件时，我们通过
-> `{"": fastapi}` 指定了一个**入口点**（enttrypoint）`""`，> 这代表着我们此时传进去的
+> `{"": fastapi}` 指定了一个**入口点**（entrypoint）`""`，> 这代表着我们此时传进去的
 > FastAPI 实例将占据 `http://127.0.0.1:9000/` 下所有入口（例如我们可以通过 `http://127.0.0.1:9000/docs`
 > 访问我们的 FastAPI 实例的 OpenAPI 文档），这样用起来很方便，但可能会影响其他也使用 `UvicornASGIService`
 > 中间件的功能（例如 Avilla 的 ob11 协议）。
