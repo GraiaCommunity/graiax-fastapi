@@ -15,8 +15,7 @@
 
 你可以方便地使用 GraiaX FastAPI 配合 `graia.amnesia.builtins.asgi.UvicornASGIService`
 轻松地在启动使用了 Graia Amnesia 的项目（如：Ariadne、Avilla）的同时启动一个
-Uvicorn 服务器并在其中为 FastAPI 指定一个 entrypoint（入口点），且在 Launart
-退出的时候自动关闭 Uvicorn。
+Uvicorn 服务器并在 Saya 模块中便捷地注册 FastAPI 的路由，且在 Launart 退出的时候自动关闭 Uvicorn。
 
 ## 安装
 
@@ -86,7 +85,7 @@ launart.launch_blocking()
 
 > [!WARNING]  
 > 需要留意的是，在把我们的 FastAPI 实例添加到 `UvicornASGIService` 中间件时，我们通过
-> `{"": fastapi}` 指定了一个**入口点**（entrypoint）`""`，> 这代表着我们此时传进去的
+> `{"": fastapi}` 指定了一个**入口点**（entrypoint）`""`，这代表着我们此时传进去的
 > FastAPI 实例将占据 `http://127.0.0.1:9000/` 下所有入口（例如我们可以通过 `http://127.0.0.1:9000/docs`
 > 访问我们的 FastAPI 实例的 OpenAPI 文档），这样用起来很方便，但可能会影响其他也使用 `UvicornASGIService`
 > 中间件的功能（例如 Avilla 的 ob11 协议）。
